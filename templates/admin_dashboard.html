@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .container {
+            margin-top: 50px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">Admin Dashboard</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h4>Manage Users</h4>
+        <table class="table table-striped" id="usersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <form method="POST" action="/update_role/{{ user.id }}">
+                            <select name="role" class="form-select" onchange="this.form.submit()">
+                                <option value="technician" {% if user.role == 'technician' %}selected{% endif %}>Technician</option>
+                                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        {% if user.username != 'admin' %}
+                            <a href="/delete_user/{{ user.id }}" class="btn btn-danger btn-sm">Delete</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h4>Add New User</h4>
+        <form method="POST" action="/register">
+            <div class="mb-3">
+                <label>Username:</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Email:</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Password:</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Role:</label>
+                <select name="role" class="form-select">
+                    <option value="technician">Technician</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Add User</button>
+        </form>
+        
+        <h4 class="mt-4">Maintenance Reports</h4>
+        <table class="table table-striped" id="reportsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Technician</th>
+                    <th>Date</th>
+                    <th>Details</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report.id }}</td>
+                    <td>{{ report.technician }}</td>
+                    <td>{{ report.date }}</td>
+                    <td>{{ report.details[:50] }}...</td>
+                    <td>{{ report.status }}</td>
+                    <td>
+                        <a href="/approve_report/{{ report.id }}" class="btn btn-success btn-sm">Approve</a>
+                        <a href="/delete_report/{{ report.id }}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#usersTable').DataTable();
+            $('#reportsTable').DataTable();
+        });
+    </script>
+</body>
+</html>
