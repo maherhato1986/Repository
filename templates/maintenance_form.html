@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Maintenance Report Form</h2>
+        
+        <form id="maintenanceForm">
+            <div class="mb-3">
+                <label for="elevatorId" class="form-label">Elevator ID</label>
+                <input type="text" class="form-control" id="elevatorId" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="issueDescription" class="form-label">Issue Description</label>
+                <textarea class="form-control" id="issueDescription" rows="3" required></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="uploadImages" class="form-label">Upload Images/Videos</label>
+                <input type="file" class="form-control" id="uploadImages" accept="image/*,video/*" multiple>
+            </div>
+            
+            <div class="mb-3">
+                <label for="technicianSignature" class="form-label">Technician Signature</label>
+                <canvas id="signaturePad" class="border" width="400" height="200"></canvas>
+                <button type="button" class="btn btn-secondary mt-2" id="clearSignature">Clear Signature</button>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit Report</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("maintenanceForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            alert("Maintenance report submitted successfully!");
+        });
+
+        // Signature Pad
+        var canvas = document.getElementById("signaturePad");
+        var ctx = canvas.getContext("2d");
+        var drawing = false;
+        
+        canvas.addEventListener("mousedown", function(e) {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+
+        canvas.addEventListener("mousemove", function(e) {
+            if (drawing) {
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+            }
+        });
+
+        canvas.addEventListener("mouseup", function() {
+            drawing = false;
+        });
+
+        document.getElementById("clearSignature").addEventListener("click", function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+    </script>
+</body>
+</html>

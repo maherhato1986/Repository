@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Elevators</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+    <script>
+        function loadManual(controlType) {
+            fetch(`/get_manual?control_type=${controlType}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.manual_url) {
+                    document.getElementById("manualLink").innerHTML = 
+                        `<a href="${data.manual_url}" target="_blank">📥 Download ${controlType} Manual</a>`;
+                } else {
+                    alert("⚠️ No manual found for this control type.");
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>Elevators List</h2>
+    <h3>📘 Elevator Manual</h3>
+<button onclick="loadManual('{{ elevator.control_type }}')">📖 View Manual</button>
+<div id="manualLink"></div>
+
+<script>
+    function loadManual(controlType) {
+        fetch(`/get_manual?control_type=${controlType}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.manual_url) {
+                document.getElementById("manualLink").innerHTML = 
+                    `<a href="${data.manual_url}" target="_blank">📥 Download ${controlType} Manual</a>`;
+            } else {
+                alert("⚠️ No manual found for this control type.");
+            }
+        });
+    }
+</script>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Elevator ID</th>
+                <th>Location</th>
+                <th>Control Type</th>
+                <th>Manual</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for elevator in elevators %}
+            <tr>
+                <td>{{ elevator.id }}</td>
+                <td>{{ elevator.location }}</td>
+                <td>{{ elevator.control_type }}</td>
+                <td><button onclick="loadManual('{{ elevator.control_type }}')">📖 View Manual</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="manualLink"></div>
+</body>
+</html>

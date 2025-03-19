@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+        .status-green {
+            background-color: #c8e6c9;
+            color: green;
+        }
+        .status-red {
+            background-color: #ffcdd2;
+            color: red;
+        }
+        .btn {
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn-view {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-pdf {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Dashboard - Maintenance Reports</h2>
+    <h3>📆 Upcoming Maintenance Schedule</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Elevator</th>
+            <th>Next Maintenance Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="maintenanceSchedule"></tbody>
+</table>
+
+<script>
+    function loadMaintenanceSchedule() {
+        fetch("/get_maintenance_schedule")
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.getElementById("maintenanceSchedule");
+            tableBody.innerHTML = "";
+            data.forEach(schedule => {
+                let row = `<tr>
+                    <td>${schedule.elevator_id}</td>
+                    <td>${schedule.next_date}</td>
+                    <td>${schedule.status}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        });
+    }
+    loadMaintenanceSchedule();
+</script>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>Project Name</th>
+                <th>Technician</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr class="{% if report.has_issues %}status-red{% else %}status-green{% endif %}">
+                <td>{{ report.id }}</td>
+                <td>{{ report.project_name }}</td>
+                <td>{{ report.technician }}</td>
+                <td>{{ report.date }}</td>
+                <td>
+                    {% if report.has_issues %}
+                        يوجد ملاحظات
+                    {% else %}
+                        لا يوجد ملاحظات
+                    {% endif %}
+                </td>
+                <td>
+                    {% if report.has_issues %}
+                        <a href="{{ url_for('view_report_details', report_id=report.id) }}" class="btn btn-view">عرض التقرير</a>
+                    {% else %}
+                        <a href="{{ url_for('download_report', report_id=report.id) }}" class="btn btn-pdf">تحميل PDF</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

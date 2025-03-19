@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Details</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+</head>
+<body class="container mt-4">
+    <h2 class="mb-4">Report Details</h2>
+    
+    <h4>Project Information</h4>
+    <p><strong>Project Name:</strong> {{ report.project_name }}</p>
+    <p><strong>Technician Name:</strong> {{ report.technician }}</p>
+    
+    <h4>Notes and Recommendations</h4>
+    <p>{{ report.notes or 'No notes available' }}</p>
+    <p>{{ report.recommendations or 'No recommendations available' }}</p>
+    
+    <h4>Quotation</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in report.recommendation_items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td><input type="number" class="form-control" name="price_{{ item.id }}" value="{{ item.price or 0 }}"></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h4>Total Cost: <span id="total-cost">0</span> SAR</h4>
+    
+    <h4>Quotation Execution Details</h4>
+    <div class="mb-3">
+        <label>Quotation Validity</label>
+        <input type="text" class="form-control" name="validity">
+    </div>
+    <div class="mb-3">
+        <label>Execution Days</label>
+        <input type="number" class="form-control" name="execution_days">
+    </div>
+    <div class="mb-3">
+        <label>Payments</label>
+        <input type="text" class="form-control" name="payments">
+    </div>
+    
+    <h4>Payment Method</h4>
+    <select class="form-control" name="payment_method">
+        <option value="bank_transfer">Bank Transfer</option>
+        <option value="mada">Mada Payment</option>
+        <option value="apple_pay">Apple Pay</option>
+    </select>
+    
+    <div class="mb-3">
+        <label>Bank Transfer Reference (Optional)</label>
+        <input type="text" class="form-control" name="bank_transfer_reference">
+    </div>
+    
+    <h4>Bank Transfer Details</h4>
+    <p>Please transfer the amount to the following account:</p>
+    <ul>
+        <li><strong>Account Name:</strong> RKLIFTS مؤسسة ركل الاولى للمصاعد</li>
+        <li><strong>Bank:</strong> Saudi National Bank (SNB)</li>
+        <li><strong>Account Number:</strong> 01400005531406</li>
+        <li><strong>IBAN:</strong> SA1710000001400005531406</li>
+    </ul>
+    <p>Kindly confirm once the transfer is completed. Thank you.</p>
+    
+    <button class="btn btn-success mt-3" id="save-btn">
+        <i class="bi bi-save"></i> Save Quotation
+    </button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let total = 0;
+            document.querySelectorAll("input[name^='price_']").forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            document.getElementById("total-cost").textContent = total + " SAR";
+        });
+
+        document.addEventListener("input", function() {
+            let total = 0;
+            document.querySelectorAll("input[name^='price_']").forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            document.getElementById("total-cost").textContent = total + " SAR";
+        });
+
+        document.getElementById("save-btn").addEventListener("click", function(event) {
+            let validity = document.querySelector("input[name='validity']").value;
+            let executionDays = document.querySelector("input[name='execution_days']").value;
+            let paymentMethod = document.querySelector("select[name='payment_method']").value;
+            
+            if (!validity || !executionDays || !paymentMethod) {
+                alert("Please fill in all required fields before saving.");
+                event.preventDefault();
+            } else {
+                alert("Quotation details have been saved successfully!");
+            }
+        });
+    </script>
+</body>
+</html>

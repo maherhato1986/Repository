@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Project - Elevator Maintenance</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Elevator Maintenance</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2 class="text-center">Add New Project</h2>
+        <form action="/add_project" method="POST" class="mt-4">
+            <div class="mb-3">
+                <label for="project_name" class="form-label">Project Name</label>
+                <input type="text" class="form-control" id="project_name" name="project_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="project_location" class="form-label">Project Location</label>
+                <input type="text" class="form-control" id="project_location" name="project_location" required>
+            </div>
+            
+            <h3 class="mt-4">Elevators in this Project</h3>
+            <table class="table table-bordered" id="elevatorsTable">
+                <thead>
+                    <tr>
+                        <th>Elevator Name</th>
+                        <th>Elevator Location</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-secondary" onclick="addElevatorRow()">Add Elevator</button>
+            <button type="submit" class="btn btn-success mt-3">Save Project</button>
+        </form>
+    </div>
+
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        &copy; 2025 Elevator Maintenance Management System - All rights reserved.
+    </footer>
+
+    <script>
+        function addElevatorRow() {
+            let table = document.getElementById("elevatorsTable").getElementsByTagName('tbody')[0];
+            let row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="text" class="form-control" name="elevator_name[]" required></td>
+                <td><input type="text" class="form-control" name="elevator_location[]" required></td>
+                <td><button type="button" class="btn btn-danger" onclick="removeRow(this)">Remove</button></td>
+            `;
+        }
+        function removeRow(button) {
+            let row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client/dist/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/google-maps"></script>
+    <style>
+        body.dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #chatBox {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Technician Dashboard</h2>
+        <button class="btn btn-secondary" id="toggleDarkMode">Toggle Dark Mode</button>
+        <button class="btn btn-primary" id="downloadReport">Download Report (PDF)</button>
+        <button class="btn btn-info" id="generateQR">Generate QR Code</button>
+        <div id="qrCode" class="mt-3"></div>
+
+        <!-- Chat System -->
+        <div class="mt-4">
+            <h4>Technician Chat</h4>
+            <div id="chatBox" class="border p-3"></div>
+            <input type="text" id="chatInput" class="form-control mt-2" placeholder="Type a message...">
+            <button class="btn btn-success mt-2" id="sendChat">Send</button>
+        </div>
+
+        <!-- Maintenance Map -->
+        <div class="mt-4">
+            <h4>Elevator Locations</h4>
+            <div id="map" style="width: 100%; height: 300px;"></div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mt-4" id="dashboardTabs">
+            <li class="nav-item">
+                <a class="nav-link active" id="elevators-tab" data-bs-toggle="tab" href="#elevators">Elevators</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="maintenance-tab" data-bs-toggle="tab" href="#maintenance">Maintenance Reports</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="schedule-tab" data-bs-toggle="tab" href="#schedule">Maintenance Schedule</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="notifications-tab" data-bs-toggle="tab" href="#notifications">Notifications</a>
+            </li>
+        </ul>
+
+        <!-- AI Prediction System -->
+        <div class="mt-4">
+            <h4>AI Maintenance Prediction</h4>
+            <button class="btn btn-warning" id="runAI">Predict Future Issues</button>
+            <p id="aiResult" class="mt-2"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("toggleDarkMode").addEventListener("click", function() {
+            document.body.classList.toggle("dark-mode");
+        });
+
+        document.getElementById("generateQR").addEventListener("click", function() {
+            document.getElementById("qrCode").innerHTML = "";
+            new QRCode(document.getElementById("qrCode"), "https://example.com/login");
+        });
+
+        var socket = io("https://yourserver.com");
+        socket.on("new_notification", function(data) {
+            document.getElementById("notificationContent").innerHTML = data.message;
+            alert("New Notification: " + data.message);
+        });
+
+        // Simple AI Prediction Mockup
+        document.getElementById("runAI").addEventListener("click", function() {
+            document.getElementById("aiResult").innerHTML = "Analyzing...";
+            setTimeout(() => {
+                document.getElementById("aiResult").innerHTML = "⚠️ Potential Issue Detected in Elevator #2 - Recommended Maintenance in 3 Days.";
+            }, 2000);
+        });
+
+        // Chat System
+        document.getElementById("sendChat").addEventListener("click", function() {
+            var message = document.getElementById("chatInput").value;
+            if (message.trim() !== "") {
+                var chatBox = document.getElementById("chatBox");
+                chatBox.innerHTML += "<p><strong>You:</strong> " + message + "</p>";
+                document.getElementById("chatInput").value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>

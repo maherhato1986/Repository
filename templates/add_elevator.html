@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Elevator - Elevator Maintenance</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Elevator Maintenance</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2 class="text-center">Add New Elevator</h2>
+        <form action="/add_elevator" method="POST" enctype="multipart/form-data" class="mt-4">
+            <div class="mb-3">
+                <label for="elevator_name" class="form-label">Elevator Name</label>
+                <input type="text" class="form-control" id="elevator_name" name="elevator_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="controlImage" class="form-label">Upload Control Panel Image</label>
+                <input type="file" class="form-control" id="controlImage" name="controlImage" accept="image/*">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="detectControlType()">Detect Control Type</button>
+            <div id="controlDetectionResult" class="mt-3"></div>
+            <button type="submit" class="btn btn-success mt-3">Save Elevator</button>
+        </form>
+    </div>
+
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        &copy; 2025 Elevator Maintenance Management System - All rights reserved.
+    </footer>
+
+    <script>
+        function detectControlType() {
+            let imageInput = document.getElementById("controlImage");
+            if (imageInput.files.length === 0) {
+                alert("📸 Please select an image first!");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("image", imageInput.files[0]);
+
+            fetch("/detect_control_type", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("controlDetectionResult").innerHTML = 
+                    `<h4>Detected Control Type: ${data.control_type}</h4>`;
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

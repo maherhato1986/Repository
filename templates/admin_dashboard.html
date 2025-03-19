@@ -4,128 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <style>
-        body {
-            background-color: #f4f6f9;
-        }
-        .container {
-            margin-top: 50px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container">
-        <h2 class="text-center mb-4">Admin Dashboard</h2>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    <div class="container mt-5">
+        <h2 class="text-center">Admin Dashboard</h2>
 
-        <h4>Manage Users</h4>
-        <table class="table table-striped" id="usersTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        <form method="POST" action="/update_role/{{ user.id }}">
-                            <select name="role" class="form-select" onchange="this.form.submit()">
-                                <option value="technician" {% if user.role == 'technician' %}selected{% endif %}>Technician</option>
-                                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
-                            </select>
-                        </form>
-                    </td>
-                    <td>
-                        {% if user.username != 'admin' %}
-                            <a href="/delete_user/{{ user.id }}" class="btn btn-danger btn-sm">Delete</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        
-        <h4>Add New User</h4>
-        <form method="POST" action="/register">
-            <div class="mb-3">
-                <label>Username:</label>
-                <input type="text" name="username" class="form-control" required>
+        <!-- Navigation -->
+        <nav class="nav nav-pills nav-justified mb-4">
+            <a class="nav-link active" href="#invoices" data-bs-toggle="tab">Invoices</a>
+            <a class="nav-link" href="#reviews" data-bs-toggle="tab">Customer Reviews</a>
+            <a class="nav-link" href="#maintenance" data-bs-toggle="tab">Maintenance Reports</a>
+            <a class="nav-link" href="#inventory" data-bs-toggle="tab">Inventory Management</a>
+        </nav>
+
+        <div class="tab-content">
+            <!-- Invoices Section -->
+            <div class="tab-pane fade show active" id="invoices">
+                <h3>Invoices</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-list">
+                        <!-- Invoice Data Here -->
+                    </tbody>
+                </table>
+                <button class="btn btn-primary" onclick="sendInvoice()">Send Invoice Notification</button>
             </div>
-            <div class="mb-3">
-                <label>Email:</label>
-                <input type="email" name="email" class="form-control" required>
+
+            <!-- Customer Reviews Section -->
+            <div class="tab-pane fade" id="reviews">
+                <h3>Customer Reviews</h3>
+                <div id="review-list">
+                    <!-- Reviews Will Load Here -->
+                </div>
             </div>
-            <div class="mb-3">
-                <label>Password:</label>
-                <input type="password" name="password" class="form-control" required>
+
+            <!-- Maintenance Reports Section -->
+            <div class="tab-pane fade" id="maintenance">
+                <h3>Maintenance Reports</h3>
+                <button class="btn btn-success" onclick="generateReport()">Generate PDF Report</button>
+                <p id="report-message"></p>
             </div>
-            <div class="mb-3">
-                <label>Role:</label>
-                <select name="role" class="form-select">
-                    <option value="technician">Technician</option>
-                    <option value="admin">Admin</option>
-                </select>
+
+            <!-- Inventory Management Section -->
+            <div class="tab-pane fade" id="inventory">
+                <h3>Inventory Management</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Reorder Level</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-list">
+                        <!-- Inventory Items -->
+                    </tbody>
+                </table>
+                <button class="btn btn-warning" onclick="orderParts()">Order New Parts</button>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Add User</button>
-        </form>
-        
-        <h4 class="mt-4">Maintenance Reports</h4>
-        <table class="table table-striped" id="reportsTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Technician</th>
-                    <th>Date</th>
-                    <th>Details</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in reports %}
-                <tr>
-                    <td>{{ report.id }}</td>
-                    <td>{{ report.technician }}</td>
-                    <td>{{ report.date }}</td>
-                    <td>{{ report.details[:50] }}...</td>
-                    <td>{{ report.status }}</td>
-                    <td>
-                        <a href="/approve_report/{{ report.id }}" class="btn btn-success btn-sm">Approve</a>
-                        <a href="/delete_report/{{ report.id }}" class="btn btn-danger btn-sm">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        </div>
     </div>
+
     <script>
-        $(document).ready(function() {
-            $('#usersTable').DataTable();
-            $('#reportsTable').DataTable();
-        });
+        function sendInvoice() {
+            fetch('/send_invoice_notification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: "customer@example.com", invoice_details: "Invoice #12345 - $250" })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message || data.error));
+        }
+
+        function generateReport() {
+            fetch('/generate_maintenance_report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ maintenance_details: "Elevator checkup completed." })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById('report-message').innerText = data.message);
+        }
+
+        function orderParts() {
+            alert("Ordering new parts...");
+        }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

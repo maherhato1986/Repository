@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+        .signature {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature div {
+            width: 45%;
+            text-align: center;
+            border-top: 1px solid black;
+            padding-top: 10px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Maintenance Report</h2>
+    
+    <h4>Project Information</h4>
+    <p><strong>Project Name:</strong> {{ report.project_name }}</p>
+    <p><strong>Technician Name:</strong> {{ report.technician }}</p>
+    <p><strong>Date:</strong> {{ report.date }}</p>
+    <p><strong>Location:</strong> {{ report.location }}</p>
+    
+    <h4>Maintenance Checklist</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Item</th>
+                <th>Sub-item</th>
+                <th>Status</th>
+                <th>Recommendation</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in report.maintenance_categories %}
+                {% for item in category.items %}
+                    {% for sub_item in item.sub_items %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ sub_item.name }}</td>
+                        <td>{{ sub_item.status }}</td>
+                        <td>{{ sub_item.recommendation or 'N/A' }}</td>
+                        <td>{{ sub_item.cost or '0' }} SAR</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h4>Inspection Summary</h4>
+    <ul>
+        <li><strong>Wire Rope:</strong> {{ report.wire_rope }}</li>
+        <li><strong>Motor:</strong> {{ report.motor }}</li>
+        <li><strong>Brake:</strong> {{ report.brake }}</li>
+        <li><strong>Rotary Encoder:</strong> {{ report.rotary_encoder }}</li>
+        <li><strong>Relay:</strong> {{ report.relay }}</li>
+        <li><strong>Printed Circuit Board:</strong> {{ report.pcb }}</li>
+        <li><strong>Close Deceleration:</strong> {{ report.close_deceleration }}</li>
+        <li><strong>Opening Deceleration:</strong> {{ report.opening_deceleration }}</li>
+        <li><strong>Contacts:</strong> {{ report.contacts }}</li>
+        <li><strong>Pin Contacts:</strong> {{ report.pin_contacts }}</li>
+        <li><strong>Door Safety Edge:</strong> {{ report.door_safety_edge }}</li>
+        <li><strong>Roller:</strong> {{ report.roller }}</li>
+        <li><strong>Light Curtain:</strong> {{ report.light_curtain }}</li>
+    </ul>
+    
+    <h4>Total Cost: {{ report.total_cost or '0' }} SAR</h4>
+    
+    <div class="signature">
+        <div>
+            <p>Technician Signature</p>
+        </div>
+        <div>
+            <p>Client Signature</p>
+        </div>
+    </div>
+    
+    <p><strong>Generated on:</strong> {{ current_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    
+    <div class="footer">
+        <p>RKLIFTS مؤسسة ركل الاولى للمصاعد</p>
+        <p>Contact: admin@rklifts.com | Phone: +966 1147442021</p>
+    </div>
+</body>
+</html>

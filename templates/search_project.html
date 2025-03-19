@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Project</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+        #notification {
+            display: none;
+            background: yellow;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .due-soon {
+            background-color: orange;
+            font-weight: bold;
+        }
+        .overdue {
+            background-color: red;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        function searchProject() {
+            let query = document.getElementById("searchInput").value.toLowerCase();
+            let rows = document.querySelectorAll("#resultsTable tbody tr");
+            
+            rows.forEach(row => {
+                let projectName = row.cells[0].textContent.toLowerCase();
+                let projectId = row.cells[1].textContent.toLowerCase();
+                let projectLocation = row.cells[2].textContent.toLowerCase();
+                let locationFilter = document.getElementById("locationFilter").value.toLowerCase();
+                
+                let matchQuery = projectName.includes(query) || projectId.includes(query);
+                let matchLocation = locationFilter === "" || projectLocation.includes(locationFilter);
+                
+                row.style.display = matchQuery && matchLocation ? "table-row" : "none";
+            });
+            updateProjectCount();
+        }
+
+        function checkNewReports() {
+            fetch("{{ url_for('check_new_reports') }}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.new_reports) {
+                        document.getElementById("notification").style.display = "block";
+                    }
+                });
+        }
+        setInterval(checkNewReports, 5000);
+
+        function resetSearch() {
+            document.getElementById("searchInput").value = "";
+            document.getElementById("locationFilter").value = "";
+            searchProject();
+        }
+
+        function updateProjectCount() {
+            let visibleRows = document.querySelectorAll("#resultsTable tbody tr:not([style*='display: none'])").length;
+            document.getElementById("projectCount").textContent = "Total Projects: " + visibleRows;
+        }
+
+        function checkMaintenanceDueDates() {
+            let today = new Date();
+            document.querySelectorAll(".maintenance-date").forEach(cell => {
+                let dueDate = new Date(cell.dataset.date);
+                let difference = (dueDate - today) / (1000 * 60 * 60 * 24);
+                
+                if (difference <= 7 && difference > 0) {
+                    cell.classList.add("due-soon");
+                    cell.textContent += " (Due Soon)";
+                } else if (difference < 0) {
+                    cell.classList.add("overdue");
+                    cell.textContent += " (Overdue)";
+                }
+            });
+        }
+        document.addEventListener("DOMContentLoaded", checkMaintenanceDueDates);
+    </script>
+</head>
+<body>
+    <div id="notification">New maintenance report submitted!</div>
+    <h2>Search Project</h2>
+    
+    <form onsubmit="event.preventDefault(); searchProject();">
+        <label>Search by Project Name or ID:</label>
+        <input type="text" id="searchInput" placeholder="Enter project name or ID..." oninput="searchProject()">
+        
+        <label>Filter by Location:</label>
+        <select id="locationFilter" onchange="searchProject()">
+            <option value="">All Locations</option>
+            {% for location in unique_locations %}
+                <option value="{{ location }}">{{ location }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="button" onclick="resetSearch()">Reset Search</button>
+    </form>
+    
+    <h3 id="projectCount">Total Projects: {{ projects|length }}</h3>
+    
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>Project Name</th>
+                <th>Project ID</th>
+                <th>Location</th>
+                <th>Next Maintenance Date</th>
+                <th>QR Code</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.id }}</td>
+                <td>{{ project.location }}</td>
+                <td class="maintenance-date" data-date="{{ project.next_maintenance_date }}">{{ project.next_maintenance_date }}</td>
+                <td><div id="qrcode_{{ project.id }}"></div></td>
+                <td>
+                    <a href="{{ url_for('view_elevators', project_id=project.id) }}">View Elevators</a>
+                </td>
+            </tr>
+            <script>
+                new QRCode(document.getElementById("qrcode_{{ project.id }}"), "{{ url_for('view_elevators', project_id=project.id, _external=True) }}");
+            </script>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <a href="{{ url_for('export_projects') }}" class="btn">Download Projects (Excel)</a>
+</body>
+</html>

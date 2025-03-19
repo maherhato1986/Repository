@@ -3,56 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Reports</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f4f6f9;
-        }
-        .container {
-            margin-top: 50px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    <title>Reports</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h2 class="text-center mb-4">Maintenance Reports</h2>
-        <table class="table table-striped">
+    <div class="container mt-5">
+        <h2 class="text-center">Maintenance Reports</h2>
+        
+        <table class="table table-striped mt-3">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Project Name</th>
-                    <th>Location</th>
-                    <th>Technician</th>
-                    <th>Date</th>
-                    <th>Status</th>
+                    <th>Report ID</th>
+                    <th>Elevator ID</th>
+                    <th>Issue Description</th>
+                    <th>Date Submitted</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for report in reports %}
                 <tr>
-                    <td>{{ report.id }}</td>
-                    <td>{{ report.project_name }}</td>
-                    <td>{{ report.location }}</td>
-                    <td>{{ report.technician }}</td>
-                    <td>{{ report.date }}</td>
-                    <td>{{ report.status }}</td>
+                    <td>1</td>
+                    <td>Elevator A</td>
+                    <td>Door malfunction</td>
+                    <td>2024-03-18</td>
                     <td>
-                        <a href="/report/{{ report.id }}" class="btn btn-info btn-sm">View</a>
-                        {% if report.status == 'Pending' %}
-                            <a href="/approve_report/{{ report.id }}" class="btn btn-success btn-sm">Approve</a>
-                        {% endif %}
-                        <a href="/delete_report/{{ report.id }}" class="btn btn-danger btn-sm">Delete</a>
+                        <button class="btn btn-primary btn-sm viewReport">View</button>
+                        <button class="btn btn-success btn-sm downloadPDF">Download PDF</button>
                     </td>
                 </tr>
-                {% endfor %}
+                <tr>
+                    <td>2</td>
+                    <td>Elevator B</td>
+                    <td>Motor overheating</td>
+                    <td>2024-03-17</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm viewReport">View</button>
+                        <button class="btn btn-success btn-sm downloadPDF">Download PDF</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $(".downloadPDF").click(function() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text("Maintenance Report", 10, 10);
+                doc.text("Report ID: " + $(this).closest("tr").find("td:eq(0)").text(), 10, 20);
+                doc.text("Elevator ID: " + $(this).closest("tr").find("td:eq(1)").text(), 10, 30);
+                doc.text("Issue: " + $(this).closest("tr").find("td:eq(2)").text(), 10, 40);
+                doc.text("Date: " + $(this).closest("tr").find("td:eq(3)").text(), 10, 50);
+                doc.save("maintenance_report.pdf");
+            });
+        });
+    </script>
 </body>
 </html>
